@@ -181,7 +181,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		context.fillRect(0,0,canvas.width,canvas.height);
 	});
 
-	var lineY = 0;
+	var lineY = -25;
 	while(lineY < canvas.height){
 		context.fillStyle="white";
 		context.fillRect(canvas.width / 2 - 5,lineY, 10, 50)
