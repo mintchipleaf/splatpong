@@ -1,51 +1,62 @@
-var canvas = document.getElementById("game");
+var canvas = document.getElementById("game"); //Store Html5 canvas tag called "game" as variable "canvas"
 
-var manifest = {
-	"images": {
+var manifest = {	//This is the manifest, which tells Splat where all your assets are located
+	"images": {	//Add non-animated pictures here
 		"playerLeft": "images/playerLeft.png",
 		"playerRight": "images/playerRight.png",
 		"ball": "images/ball.png"
 	},
-	"sounds": {
+	"sounds": { //Sounds (wav and mp3) (IE can't do wav [For SOME reason])
 	},
-	"fonts": [
+	"fonts": [ //Fonts (specify font location in css @font-face{})
 	],
-	"animations": {
+	"animations": {	//Animated pictures
+	/*TODO:
+		Add sample animations
+	*/
 	}
 };
 
-var game = new Splat.Game(canvas, manifest);
+var game = new Splat.Game(canvas, manifest); //Make new "game" variable with "canvas" from line 1
 
+/*
+	The following functions were created by me and are not necessary for a Splat game to run.
+*/
+
+//Multiplies input number by -1, neg -> pos and pos -> neg
 function invert(number){
 	number *= -1;
 	return number;
 }
 
+//Play sound from manifest with name of passed-in variable
 function sound(sound){
 	game.sounds.play(sound);
 }
 
+//Set beginning ball speed and direction
 function ballSpawn(scene){
+	speed = 0.4;
 	var randomNum = Math.random();
 
-	//Ball goes bottom right
+	//Ball goes towards bottom right
 	if(randomNum < 0.25){
 		ball.vx = speed;
 		ball.vy = speed;
-	//Ball goes bottom left
+	//Ball goes towards bottom left
 	}else if(randomNum < 0.5){
 		ball.vx = invert(speed);
 		ball.vy = speed;
-	//Ball goes top left
+	//Ball goes towards top left
 	}else if(randomNum < 0.75){
 		ball.vx = invert(speed);
 		ball.vy = invert(speed);
-	//Ball goes top right
+	//Ball goes towards top right
 	}else {
 		ball.vx = speed;
 		ball.vy = invert(speed);
 	}
-	scene.timers.ball.start();
+	scene.timers.ball.start(); //Start timer for delayed ball movement
 }
 
 function ballCollision(context, scene){
@@ -114,17 +125,50 @@ function checkKeys(){
 	}
 	return key;
 }
+/*
+	User-created functions end above
+*/
 
-var playerLeft;
-var playerRight;
-var ball;
-var waitingToStart = true;
-var speed = 0.4;
-var scoreLeft = 0;
-var scoreRight = 0;
+//Variables that initialize once when the page is loaded
+var playerLeft;		//Left paddle
+var playerRight;	//Right paddle
+var ball;			//What it says
+var speed;			//Stores speed of ball
+var waitingToStart = true;	//Used for start/title screen
+var scoreLeft = 0;	//Score for left paddle
+var scoreRight = 0;	//Score for right paddle
 
-game.scenes.add("title", new Splat.Scene(canvas, function() {
-	waitingToStart = true;
+/*
+	Here's where the magic happens. Each Splat game has at least one "scene".
+	NOTE: A "loading" and "title" scene is NECESSARY (for Splat's built in loading), "loading" scene is called first and is called at the last line of the file. 
+
+	Scenes look like this:
+		game.scenes.add("nameOfScene", new Splat.Scene(canvas, function() { }, function(elapsedmillis){}, function(context){}));
+
+	Scenes are switched to with:
+		game.scenes.switchTo("nameOfScene");
+	
+	Each scene has three parts (functions): Initializer, Simulation, and Drawing.
+	***Initializer
+		This function runs only once when the scene is switched to or started.
+		This is where you declare and set variables how you want them to be at the beginning of the scene.
+		(Useful to clear arrays, make entities like players, switch on title screen, start timers, etc)
+		NOTE: Nothing is drawn or moved here but you can still set position and velocities.
+
+	***Simulation (uses elapsedmillis)
+		This function is run EVERY SINGLE FRAME and can be thought of as "the actual game" as far as movement/interactivity.
+		This is where you check for user input and collisions, play sounds, move things,  
+		Code that responds to input, movement, position, etc will be found here
+		(Since anything here is run many times per second if checks and timers are important to only have code run when you want it to)
+		NOTE: You may need to pass "this" (for anything using "scene") or "elapsedmillis" as arguments into functions here.
+
+	***Drawing (uses context)
+		This function is run every fame like Simulation is, but is used to draw pictures, animation, text, and shapes on to the HTML5 canvas object.
+		NOTE: The "camera" is view area you can currently see, not the whole drawable canvas area. These are not always the same, canvas area extends past the current camera view.
+		Use this.camera.drawAbsolute(context, function() {}); to draw to a specific coordinate of the CAMERA instead of the CANVAS
+*/
+game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
+	waitingToStart = true;	//Start the title screen
 
 	var playerLeftImg = game.images.get("playerLeft");
 	playerLeft = new Splat.AnimatedEntity(50, canvas.height / 2  - playerLeftImg.height / 2, playerLeftImg.width, playerLeftImg.height, playerLeftImg, 0, 0);
@@ -139,7 +183,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	ballSpawn(this);
 
-}, function(elapsedMillis) {
+}, function(elapsedMillis) { //***Simulation
 	if(waitingToStart){
 		if(checkKeys()){
 			waitingToStart = false;
@@ -174,8 +218,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	checkPoints(this);
 	ballCollision();
 
-}, function(context) {
-	//draw background gradient
+}, function(context) {	//***Drawing
+	//draw background
 	this.camera.drawAbsolute(context, function() {
 		context.fillStyle="black";
 		context.fillRect(0,0,canvas.width,canvas.height);
@@ -188,9 +232,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		lineY += 100;
 	}
 
-	playerLeft.draw(context); //draw player
-	playerRight.draw(context);
-	ball.draw(context);
+	playerLeft.draw(context); 	//draw left paddle
+	playerRight.draw(context);	//draw right paddle
+	ball.draw(context);			//draw ball
 
 	if(waitingToStart){
 		this.camera.drawAbsolute(context, function() {
@@ -218,4 +262,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	}
 
 }));
+/*
+	This "loading" scene is the first thing called (shows loading bar and loads images, sounds, etc from the manifest
+*/
 game.scenes.switchTo("loading");
