@@ -193,15 +193,29 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	ball.draw(context);
 
 	if(waitingToStart){
+		this.camera.drawAbsolute(context, function() {
+			context.fillStyle = "#ffffff";
+			context.font = "150px arial";
+			context.fillText("SPLAT", 200, 200);
+			context.fillText("PONG", canvas.width - 700, 200)
 
+			context.font = "50px arial";
+			context.fillText("w", playerLeft.x, playerLeft.y - 30);
+			context.fillText("s", playerLeft.x, playerLeft.y + playerLeft.height + 50);
+			context.fillText("^", playerRight.x, playerRight.y - 10);
+			context.fillText("v", playerRight.x, playerRight.y + playerRight.height + 50);
+
+		});
 	}
 
-	this.camera.drawAbsolute(context, function() {
-			context.fillStyle = "#ffffff";
-			context.font = "100px arial";
-			context.fillText(scoreLeft, 100, 100);
-			context.fillText(scoreRight, canvas.width - 150, 100)
+	if(!waitingToStart){
+		this.camera.drawAbsolute(context, function() {
+				context.fillStyle = "#ffffff";
+				context.font = "100px arial";
+				context.fillText(scoreLeft, 100, 100);
+				context.fillText(scoreRight, canvas.width - 150, 100)
 		});
+	}
 
 }));
 game.scenes.switchTo("loading");
