@@ -33,7 +33,6 @@ var game = new Splat.Game(canvas, manifest);
 
 // Variables that initialize once when the page is loaded
 var ball;			// What it says
-var speed;			// Stores speed of ball
 var waitingToStart = true;	// Used for start/title screen
 var scoreLeft = 0;	// Score for left paddle
 var scoreRight = 0;	// Score for right paddle
@@ -44,7 +43,7 @@ var scoreRight = 0;	// Score for right paddle
 
 // Set beginning ball speed and direction
 function ballSpawn(scene) {
-	speed = 0.4;
+	var speed = 0.4;
 	var randomNum = Math.random();
 
 	// Ball goes towards bottom right
