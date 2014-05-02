@@ -114,27 +114,28 @@ function pointScored(scene) {
 
 function checkKeys(playerLeft, playerRight) {
 	var key = false;
-	if (game.keyboard.isPressed("up") && playerRight.y > 0) {
-		playerRight.vy = -0.7;
+	if (movePlayer(playerRight, "up", "down")) {
 		key = true;
-	} else if (game.keyboard.isPressed("down") && playerRight.y + playerRight.height < canvas.height) {
-		playerRight.vy = 0.7;
-		key = true;
-	} else {
-		playerRight.vy = 0;
 	}
-
-	if (game.keyboard.isPressed("w") && playerLeft.y >  0) {
-		playerLeft.vy = -0.7;
+	if (movePlayer(playerLeft, "w", "s")) {
 		key = true;
-	} else if (game.keyboard.isPressed("s") && playerLeft.y + playerLeft.height < canvas.height) {
-		playerLeft.vy = 0.7;
-		key = true;
-	} else {
-		playerLeft.vy = 0;
 	}
 	return key;
 }
+
+function movePlayer(player, upKey, downKey) {
+	var speed = 0.7;
+	player.vy = 0;
+	if (game.keyboard.isPressed(upKey) && player.y > 0) {
+		player.vy = -speed;
+		return true;
+	} else if (game.keyboard.isPressed(downKey) && player.y + player.height < canvas.height) {
+		player.vy = speed;
+		return true;
+	}
+	return false;
+}
+
 /*
 	User-created functions end above
 */
