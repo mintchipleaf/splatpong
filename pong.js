@@ -32,7 +32,6 @@ var manifest = {
 var game = new Splat.Game(canvas, manifest);
 
 // Variables that initialize once when the page is loaded
-var ball;			// What it says
 var scoreLeft = 0;	// Score for left paddle
 var scoreRight = 0;	// Score for right paddle
 
@@ -41,7 +40,7 @@ var scoreRight = 0;	// Score for right paddle
 */
 
 // Set beginning ball speed and direction
-function ballSpawn(scene) {
+function ballSpawn(ball, scene) {
 	var speed = 0.4;
 	var randomNum = Math.random();
 
@@ -69,7 +68,7 @@ function ballSpawn(scene) {
 	scene.timers.ball.start();
 }
 
-function ballCollision(playerLeft, playerRight) {
+function ballCollision(ball, playerLeft, playerRight) {
 	if (ball.y + ball.height >= canvas.height) {
 		ball.y = canvas.height - ball.height;
 		ball.vy = -ball.vy;
@@ -80,10 +79,6 @@ function ballCollision(playerLeft, playerRight) {
 		ball.vy = -ball.vy;
 		game.sounds.play("wallbounce");
 	}
-	paddleCollision(playerLeft, playerRight);
-}
-
-function paddleCollision(playerLeft, playerRight) {
 	if (ball.collides(playerLeft)) {
 		ball.x = playerLeft.x + playerLeft.width;
 		ball.vx = -ball.vx;
@@ -96,19 +91,19 @@ function paddleCollision(playerLeft, playerRight) {
 	}
 }
 
-function checkPoints(scene) {
+function checkPoints(ball, scene) {
 	if (ball.x + ball.width < 0) {
 		scoreRight++;
-		pointScored(scene);
+		pointScored(ball, scene);
 	}
 	if (ball.x > canvas.width) {
 		scoreLeft++;
-		pointScored(scene);
+		pointScored(ball, scene);
 	}
 }
 
-function pointScored(scene) {
-	ballSpawn(scene);
+function pointScored(ball, scene) {
+	ballSpawn(ball, scene);
 	game.sounds.play("point");
 }
 
@@ -173,20 +168,21 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	// Start the title screen
 	this.waitingToStart = true;
 
+	var halfCanvasHeight = canvas.height / 2;
 	var playerLeftImg = game.images.get("playerLeft");
-	this.playerLeft = new Splat.AnimatedEntity(50, canvas.height / 2  - playerLeftImg.height / 2, playerLeftImg.width, playerLeftImg.height, playerLeftImg, 0, 0);
+	this.playerLeft = new Splat.AnimatedEntity(50, halfCanvasHeight  - playerLeftImg.height / 2, playerLeftImg.width, playerLeftImg.height, playerLeftImg, 0, 0);
 
 	var playerRightImg = game.images.get("playerRight");
-	this.playerRight = new Splat.AnimatedEntity(canvas.width - 50 - playerRightImg.width, canvas.height / 2 - playerRightImg.height / 2, playerRightImg.width, playerRightImg.height, playerRightImg, 0, 0);
+	this.playerRight = new Splat.AnimatedEntity(canvas.width - 50 - playerRightImg.width, halfCanvasHeight - playerRightImg.height / 2, playerRightImg.width, playerRightImg.height, playerRightImg, 0, 0);
 
 	var ballImg = game.images.get("ball");
-	ball = new Splat.AnimatedEntity(canvas.width / 2 - ballImg.width / 2, canvas.height / 2 - ballImg.height / 2, ballImg.width,  ballImg.height, ballImg, 0, 0);
+	this.ball = new Splat.AnimatedEntity(0, 0, ballImg.width,  ballImg.height, ballImg, 0, 0);
 
 	this.timers.ball = new Splat.Timer(undefined, 500, function() {
 		this.reset();
 	});
 
-	ballSpawn(this);
+	ballSpawn(this.ball, this);
 
 }, function(elapsedMillis) { //***Simulation
 	if (this.waitingToStart) {
@@ -200,12 +196,12 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	this.playerRight.move(elapsedMillis);
 
 	if (!this.timers.ball.running) {
-		ball.move(elapsedMillis);
+		this.ball.move(elapsedMillis);
 	}
 
 	checkKeys(this.playerLeft, this.playerRight);
-	checkPoints(this);
-	ballCollision(this.playerLeft, this.playerRight);
+	checkPoints(this.ball, this);
+	ballCollision(this.ball, this.playerLeft, this.playerRight);
 
 }, function(context) {	//***Drawing
 	// draw background
@@ -219,7 +215,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 
 	this.playerLeft.draw(context); 	// draw left paddle
 	this.playerRight.draw(context);	// draw right paddle
-	ball.draw(context);			// draw ball
+	this.ball.draw(context);			// draw ball
 
 	if (this.waitingToStart) {
 		context.fillStyle = "#ffffff";
