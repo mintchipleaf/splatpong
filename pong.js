@@ -7,8 +7,8 @@ var canvas = document.getElementById("game");
 var manifest = {
 	// Add non-animated pictures here
 	"images": {
-		"playerLeft": "images/playerLeft.png",
-		"playerRight": "images/playerRight.png",
+		"leftPaddle": "images/leftPaddle.png",
+		"rightPaddle": "images/rightPaddle.png",
 		"ball": "images/ball.png"
 	},
 	// Sounds (wav and mp3) (IE can't do wav [For SOME reason])
@@ -68,7 +68,7 @@ function ballSpawn(ball, scene) {
 	scene.timers.ball.start();
 }
 
-function ballCollision(ball, playerLeft, playerRight) {
+function ballCollision(ball, leftPaddle, rightPaddle) {
 	if (ball.y + ball.height >= canvas.height) {
 		ball.y = canvas.height - ball.height;
 		ball.vy = -ball.vy;
@@ -79,13 +79,13 @@ function ballCollision(ball, playerLeft, playerRight) {
 		ball.vy = -ball.vy;
 		game.sounds.play("wallbounce");
 	}
-	if (ball.collides(playerLeft)) {
-		ball.x = playerLeft.x + playerLeft.width;
+	if (ball.collides(leftPaddle)) {
+		ball.x = leftPaddle.x + leftPaddle.width;
 		ball.vx = -ball.vx;
 		game.sounds.play("paddlebounce");
 	}
-	if (ball.collides(playerRight)) {
-		ball.x = playerRight.x - ball.width;
+	if (ball.collides(rightPaddle)) {
+		ball.x = rightPaddle.x - ball.width;
 		ball.vx = -ball.vx;
 		game.sounds.play("paddlebounce");
 	}
@@ -107,25 +107,25 @@ function pointScored(ball, scene) {
 	game.sounds.play("point");
 }
 
-function checkKeys(playerLeft, playerRight) {
+function checkKeys(leftPaddle, rightPaddle) {
 	var key = false;
-	if (movePlayer(playerRight, "up", "down")) {
+	if (movePaddle(rightPaddle, "up", "down")) {
 		key = true;
 	}
-	if (movePlayer(playerLeft, "w", "s")) {
+	if (movePaddle(leftPaddle, "w", "s")) {
 		key = true;
 	}
 	return key;
 }
 
-function movePlayer(player, upKey, downKey) {
+function movePaddle(paddle, upKey, downKey) {
 	var speed = 0.7;
-	player.vy = 0;
-	if (game.keyboard.isPressed(upKey) && player.y > 0) {
-		player.vy = -speed;
+	paddle.vy = 0;
+	if (game.keyboard.isPressed(upKey) && paddle.y > 0) {
+		paddle.vy = -speed;
 		return true;
-	} else if (game.keyboard.isPressed(downKey) && player.y + player.height < canvas.height) {
-		player.vy = speed;
+	} else if (game.keyboard.isPressed(downKey) && paddle.y + paddle.height < canvas.height) {
+		paddle.vy = speed;
 		return true;
 	}
 	return false;
@@ -169,11 +169,11 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	this.waitingToStart = true;
 
 	var halfCanvasHeight = canvas.height / 2;
-	var playerLeftImg = game.images.get("playerLeft");
-	this.playerLeft = new Splat.AnimatedEntity(50, halfCanvasHeight  - playerLeftImg.height / 2, playerLeftImg.width, playerLeftImg.height, playerLeftImg, 0, 0);
+	var leftPaddleImg = game.images.get("leftPaddle");
+	this.leftPaddle = new Splat.AnimatedEntity(50, halfCanvasHeight  - leftPaddleImg.height / 2, leftPaddleImg.width, leftPaddleImg.height, leftPaddleImg, 0, 0);
 
-	var playerRightImg = game.images.get("playerRight");
-	this.playerRight = new Splat.AnimatedEntity(canvas.width - 50 - playerRightImg.width, halfCanvasHeight - playerRightImg.height / 2, playerRightImg.width, playerRightImg.height, playerRightImg, 0, 0);
+	var rightPaddleImg = game.images.get("rightPaddle");
+	this.rightPaddle = new Splat.AnimatedEntity(canvas.width - 50 - rightPaddleImg.width, halfCanvasHeight - rightPaddleImg.height / 2, rightPaddleImg.width, rightPaddleImg.height, rightPaddleImg, 0, 0);
 
 	var ballImg = game.images.get("ball");
 	this.ball = new Splat.AnimatedEntity(0, 0, ballImg.width,  ballImg.height, ballImg, 0, 0);
@@ -186,21 +186,21 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 
 }, function(elapsedMillis) { //***Simulation
 	if (this.waitingToStart) {
-		if (checkKeys(this.playerLeft, this.playerRight)) {
+		if (checkKeys(this.leftPaddle, this.rightPaddle)) {
 			this.waitingToStart = false;
 		} else {
 			return;
 		}
 	}
 
-	checkKeys(this.playerLeft, this.playerRight);
-	this.playerLeft.move(elapsedMillis);
-	this.playerRight.move(elapsedMillis);
+	checkKeys(this.leftPaddle, this.rightPaddle);
+	this.leftPaddle.move(elapsedMillis);
+	this.rightPaddle.move(elapsedMillis);
 
 	if (!this.timers.ball.running) {
 		this.ball.move(elapsedMillis);
 		checkPoints(this.ball, this);
-		ballCollision(this.ball, this.playerLeft, this.playerRight);
+		ballCollision(this.ball, this.leftPaddle, this.rightPaddle);
 	}
 }, function(context) {	//***Drawing
 	// draw background
@@ -212,8 +212,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 		context.fillRect(canvas.width / 2 - 5, lineY, 10, 50);
 	}
 
-	this.playerLeft.draw(context); 	// draw left paddle
-	this.playerRight.draw(context);	// draw right paddle
+	this.leftPaddle.draw(context); 	// draw left paddle
+	this.rightPaddle.draw(context);	// draw right paddle
 	this.ball.draw(context);			// draw ball
 
 	if (this.waitingToStart) {
@@ -223,10 +223,10 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 		context.fillText("PONG", canvas.width - 700, 200);
 
 		context.font = "50px arial";
-		context.fillText("w", this.playerLeft.x, this.playerLeft.y - 30);
-		context.fillText("s", this.playerLeft.x, this.playerLeft.y + this.playerLeft.height + 50);
-		context.fillText("^", this.playerRight.x, this.playerRight.y - 10);
-		context.fillText("v", this.playerRight.x, this.playerRight.y + this.playerRight.height + 50);
+		context.fillText("w", this.leftPaddle.x, this.leftPaddle.y - 30);
+		context.fillText("s", this.leftPaddle.x, this.leftPaddle.y + this.leftPaddle.height + 50);
+		context.fillText("^", this.rightPaddle.x, this.rightPaddle.y - 10);
+		context.fillText("v", this.rightPaddle.x, this.rightPaddle.y + this.rightPaddle.height + 50);
 	} else {
 		context.fillStyle = "#ffffff";
 		context.font = "100px arial";
