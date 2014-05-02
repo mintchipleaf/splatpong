@@ -33,7 +33,6 @@ var game = new Splat.Game(canvas, manifest);
 
 // Variables that initialize once when the page is loaded
 var ball;			// What it says
-var waitingToStart = true;	// Used for start/title screen
 var scoreLeft = 0;	// Score for left paddle
 var scoreRight = 0;	// Score for right paddle
 
@@ -170,7 +169,8 @@ function checkKeys(playerLeft, playerRight) {
 		Use this.camera.drawAbsolute(context, function() {}); to draw to a specific coordinate of the CAMERA instead of the CANVAS
 */
 game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
-	waitingToStart = true;	// Start the title screen
+	// Start the title screen
+	this.waitingToStart = true;
 
 	var playerLeftImg = game.images.get("playerLeft");
 	this.playerLeft = new Splat.AnimatedEntity(50, canvas.height / 2  - playerLeftImg.height / 2, playerLeftImg.width, playerLeftImg.height, playerLeftImg, 0, 0);
@@ -188,31 +188,19 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	ballSpawn(this);
 
 }, function(elapsedMillis) { //***Simulation
-	if (waitingToStart) {
+	if (this.waitingToStart) {
 		if (checkKeys(this.playerLeft, this.playerRight)) {
-			waitingToStart = false;
+			this.waitingToStart = false;
+		} else {
+			return;
 		}
 	}
-	if (!waitingToStart) {
-		this.playerLeft.move(elapsedMillis);
-		this.playerRight.move(elapsedMillis);
+	this.playerLeft.move(elapsedMillis);
+	this.playerRight.move(elapsedMillis);
 
-		if (!this.timers.ball.running) {
-			ball.move(elapsedMillis);
-		}
+	if (!this.timers.ball.running) {
+		ball.move(elapsedMillis);
 	}
-
-	/*if(waitingToStart) {
-		var startTimer = this.timer("start");
-		this.camera.vy = player.vy;
-		player.vy = 1;
-		if(startTimer > 100 && anythingWasPressed()){
-			//game.sounds.play("music", true);
-			this.stopTimer("start");
-			startPos = player.y;
-			waitingToStart = false;
-		}
-	}*/
 
 	checkKeys(this.playerLeft, this.playerRight);
 	checkPoints(this);
@@ -234,7 +222,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	this.playerRight.draw(context);	// draw right paddle
 	ball.draw(context);			// draw ball
 
-	if (waitingToStart) {
+	if (this.waitingToStart) {
 		context.fillStyle = "#ffffff";
 		context.font = "150px arial";
 		context.fillText("SPLAT", 200, 200);
@@ -245,9 +233,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 		context.fillText("s", this.playerLeft.x, this.playerLeft.y + this.playerLeft.height + 50);
 		context.fillText("^", this.playerRight.x, this.playerRight.y - 10);
 		context.fillText("v", this.playerRight.x, this.playerRight.y + this.playerRight.height + 50);
-	}
-
-	if (!waitingToStart) {
+	} else {
 		context.fillStyle = "#ffffff";
 		context.font = "100px arial";
 		context.fillText(scoreLeft, 100, 100);
