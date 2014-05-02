@@ -42,12 +42,6 @@ var scoreRight = 0;	// Score for right paddle
 	The following functions were created by me and are not necessary for a Splat game to run.
 */
 
-// Multiplies input number by -1, neg -> pos and pos -> neg
-function invert(number) {
-	number *= -1;
-	return number;
-}
-
 // Set beginning ball speed and direction
 function ballSpawn(scene) {
 	speed = 0.4;
@@ -59,16 +53,16 @@ function ballSpawn(scene) {
 		ball.vy = speed;
 	// Ball goes towards bottom left
 	} else if (randomNum < 0.5) {
-		ball.vx = invert(speed);
+		ball.vx = -speed;
 		ball.vy = speed;
 	// Ball goes towards top left
 	} else if (randomNum < 0.75) {
-		ball.vx = invert(speed);
-		ball.vy = invert(speed);
+		ball.vx = -speed;
+		ball.vy = -speed;
 	// Ball goes towards top right
 	} else {
 		ball.vx = speed;
-		ball.vy = invert(speed);
+		ball.vy = -speed;
 	}
 	// Start timer for delayed ball movement
 	scene.timers.ball.start();
@@ -77,12 +71,12 @@ function ballSpawn(scene) {
 function ballCollision(playerLeft, playerRight) {
 	if (ball.y + ball.height >= canvas.height) {
 		ball.y = canvas.height - ball.height;
-		ball.vy = invert(ball.vy);
+		ball.vy = -ball.vy;
 		game.sounds.play("wallbounce");
 	}
 	if (ball.y <= 0) {
 		ball.y = 0;
-		ball.vy = invert(ball.vy);
+		ball.vy = -ball.vy;
 		game.sounds.play("wallbounce");
 	}
 	paddleCollision(playerLeft, playerRight);
@@ -91,13 +85,13 @@ function ballCollision(playerLeft, playerRight) {
 function paddleCollision(playerLeft, playerRight) {
 	if (ball.collides(playerLeft)) {
 		ball.x = playerLeft.x + playerLeft.width;
-		ball.vx = invert(ball.vx);
-		sound("paddlebounce");
+		ball.vx = -ball.vx;
+		game.sounds.play("paddlebounce");
 	}
 	if (ball.collides(playerRight)) {
 		ball.x = playerRight.x - ball.width;
-		ball.vx = invert(ball.vx);
-		sound("paddlebounce");
+		ball.vx = -ball.vx;
+		game.sounds.play("paddlebounce");
 	}
 }
 
