@@ -192,20 +192,19 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 			return;
 		}
 	}
+
+	checkKeys(this.playerLeft, this.playerRight);
 	this.playerLeft.move(elapsedMillis);
 	this.playerRight.move(elapsedMillis);
 
 	if (!this.timers.ball.running) {
 		this.ball.move(elapsedMillis);
+		checkPoints(this.ball, this);
+		ballCollision(this.ball, this.playerLeft, this.playerRight);
 	}
-
-	checkKeys(this.playerLeft, this.playerRight);
-	checkPoints(this.ball, this);
-	ballCollision(this.ball, this.playerLeft, this.playerRight);
-
 }, function(context) {	//***Drawing
 	// draw background
-	context.fillStyle="black";
+	context.fillStyle = "black";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
 	for (var lineY = -25; lineY < canvas.height; lineY += 100) {
