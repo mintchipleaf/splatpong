@@ -7,8 +7,9 @@ var manifest = {	//This is the manifest, which tells Splat where all your assets
 		"ball": "images/ball.png"
 	},
 	"sounds": { //Sounds (wav and mp3) (IE can't do wav [For SOME reason])
-		/*"blip1": "sounds/blip1.wav",
-		"blip2": "sounds/blip2.wav"*/
+		"wallbounce": "sounds/blip1.wav",
+		"paddlebounce": "sounds/blip2.wav",
+		"point": "sounds/point.wav"
 	},
 	"fonts": [ //Fonts (specify font location in css @font-face{})
 	],
@@ -65,11 +66,11 @@ function ballCollision(context, scene){
 		if(ball.y + ball.height >= canvas.height){
 			ball.y = canvas.height - ball.height;
 			ball.vy = invert(ball.vy);
-			//sound(wallbounce);
+			sound("wallbounce");
 		}if(ball.y <= 0){
 			ball.y = 0;
 			ball.vy = invert(ball.vy);
-			//sound(wallbounce);
+			sound("wallbounce");
 		}
 		paddleCollision();
 
@@ -79,9 +80,11 @@ function paddleCollision(){
 	if(ball.collides(playerLeft)){
 		ball.x = playerLeft.x + playerLeft.width;
 		ball.vx = invert(ball.vx);
+		sound("paddlebounce");
 	}if(ball.collides(playerRight)){
 		ball.x = playerRight.x - ball.width;
 		ball.vx = invert(ball.vx);
+		sound("paddlebounce");
 	}
 }
 
@@ -98,7 +101,7 @@ function checkPoints(scene){
 			ball.x = canvas.width / 2 - ball.width / 2;
 			ball.y = canvas.height / 2 - ball.height / 2;
 			ballSpawn(scene);
-			//sound(point);
+			sound("point");
 			point = false;
 		}
 }
@@ -116,7 +119,7 @@ function checkKeys(){
 		playerRight.vy = 0;
 	}
 
-	if (game.keyboard.isPressed("w") && playerLeft.y > 0) {
+	if (game.keyboard.isPressed("w") && playerLeft.y >  0) {
 		playerLeft.vy = -0.7;
 		key = true;
 	} else if (game.keyboard.isPressed("s") && playerLeft.y + playerLeft.height < canvas.height) {
