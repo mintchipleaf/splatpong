@@ -7,11 +7,13 @@ var manifest = {	//This is the manifest, which tells Splat where all your assets
 		"ball": "images/ball.png"
 	},
 	"sounds": { //Sounds (wav and mp3) (IE can't do wav [For SOME reason])
+		/*"blip1": "sounds/blip1.wav",
+		"blip2": "sounds/blip2.wav"*/
 	},
 	"fonts": [ //Fonts (specify font location in css @font-face{})
 	],
 	"animations": {	//Animated pictures
-	/*TODO:
+	/*TODO:416
 		Add sample animations
 	*/
 	}
