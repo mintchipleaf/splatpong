@@ -45,6 +45,9 @@ function ballSpawn(scene) {
 	var speed = 0.4;
 	var randomNum = Math.random();
 
+	ball.x = canvas.width / 2 - ball.width / 2;
+	ball.y = canvas.height / 2 - ball.height / 2;
+
 	// Ball goes towards bottom right
 	if (randomNum < 0.25) {
 		ball.vx = speed;
@@ -94,22 +97,19 @@ function paddleCollision(playerLeft, playerRight) {
 }
 
 function checkPoints(scene) {
-	var point = false;
 	if (ball.x + ball.width < 0) {
 		scoreRight++;
-		point = true;
+		pointScored(scene);
 	}
 	if (ball.x > canvas.width) {
 		scoreLeft++;
-		point = true;
+		pointScored(scene);
 	}
-	if (point) {
-		ball.x = canvas.width / 2 - ball.width / 2;
-		ball.y = canvas.height / 2 - ball.height / 2;
-		ballSpawn(scene);
-		game.sounds.play("point");
-		point = false;
-	}
+}
+
+function pointScored(scene) {
+	ballSpawn(scene);
+	game.sounds.play("point");
 }
 
 function checkKeys(playerLeft, playerRight) {
