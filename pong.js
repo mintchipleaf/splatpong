@@ -211,11 +211,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	context.fillStyle="black";
 	context.fillRect(0, 0, canvas.width, canvas.height);
 
-	var lineY = -25;
-	while (lineY < canvas.height) {
-		context.fillStyle="white";
+	for (var lineY = -25; lineY < canvas.height; lineY += 100) {
+		context.fillStyle = "white";
 		context.fillRect(canvas.width / 2 - 5, lineY, 10, 50);
-		lineY += 100;
 	}
 
 	this.playerLeft.draw(context); 	// draw left paddle
