@@ -1,113 +1,128 @@
-var canvas = document.getElementById("game"); //Store Html5 canvas tag called "game" as variable "canvas"
+"use strict";
 
-var manifest = {	//This is the manifest, which tells Splat where all your assets are located
-	"images": {	//Add non-animated pictures here
+// Store Html5 canvas tag called "game" as variable "canvas"
+var canvas = document.getElementById("game");
+
+// This is the manifest, which tells Splat where all your assets are located
+var manifest = {
+	// Add non-animated pictures here
+	"images": {
 		"playerLeft": "images/playerLeft.png",
 		"playerRight": "images/playerRight.png",
 		"ball": "images/ball.png"
 	},
-	"sounds": { //Sounds (wav and mp3) (IE can't do wav [For SOME reason])
+	// Sounds (wav and mp3) (IE can't do wav [For SOME reason])
+	"sounds": {
 		"wallbounce": "sounds/blip1.wav",
 		"paddlebounce": "sounds/blip2.wav",
 		"point": "sounds/point.wav"
 	},
-	"fonts": [ //Fonts (specify font location in css @font-face{})
+	// Fonts (specify font location in css @font-face{})
+	"fonts": [
 	],
-	"animations": {	//Animated pictures
-	/*TODO:416
+	// Animated pictures
+	"animations": {
+	/*TODO:
 		Add sample animations
 	*/
 	}
 };
 
-var game = new Splat.Game(canvas, manifest); //Make new "game" variable with "canvas" from line 1
+// Make new "game" variable with "canvas" from line 1
+var game = new Splat.Game(canvas, manifest);
+
+// Variables that initialize once when the page is loaded
+var playerLeft;		// Left paddle
+var playerRight;	// Right paddle
+var ball;			// What it says
+var speed;			// Stores speed of ball
+var waitingToStart = true;	// Used for start/title screen
+var scoreLeft = 0;	// Score for left paddle
+var scoreRight = 0;	// Score for right paddle
 
 /*
 	The following functions were created by me and are not necessary for a Splat game to run.
 */
 
-//Multiplies input number by -1, neg -> pos and pos -> neg
-function invert(number){
+// Multiplies input number by -1, neg -> pos and pos -> neg
+function invert(number) {
 	number *= -1;
 	return number;
 }
 
-//Play sound from manifest with name of passed-in variable
-function sound(sound){
-	game.sounds.play(sound);
-}
-
-//Set beginning ball speed and direction
-function ballSpawn(scene){
+// Set beginning ball speed and direction
+function ballSpawn(scene) {
 	speed = 0.4;
 	var randomNum = Math.random();
 
-	//Ball goes towards bottom right
-	if(randomNum < 0.25){
+	// Ball goes towards bottom right
+	if (randomNum < 0.25) {
 		ball.vx = speed;
 		ball.vy = speed;
-	//Ball goes towards bottom left
-	}else if(randomNum < 0.5){
+	// Ball goes towards bottom left
+	} else if (randomNum < 0.5) {
 		ball.vx = invert(speed);
 		ball.vy = speed;
-	//Ball goes towards top left
-	}else if(randomNum < 0.75){
+	// Ball goes towards top left
+	} else if (randomNum < 0.75) {
 		ball.vx = invert(speed);
 		ball.vy = invert(speed);
-	//Ball goes towards top right
-	}else {
+	// Ball goes towards top right
+	} else {
 		ball.vx = speed;
 		ball.vy = invert(speed);
 	}
-	scene.timers.ball.start(); //Start timer for delayed ball movement
+	// Start timer for delayed ball movement
+	scene.timers.ball.start();
 }
 
-function ballCollision(context, scene){
-		if(ball.y + ball.height >= canvas.height){
-			ball.y = canvas.height - ball.height;
-			ball.vy = invert(ball.vy);
-			sound("wallbounce");
-		}if(ball.y <= 0){
-			ball.y = 0;
-			ball.vy = invert(ball.vy);
-			sound("wallbounce");
-		}
-		paddleCollision();
-
+function ballCollision() {
+	if (ball.y + ball.height >= canvas.height) {
+		ball.y = canvas.height - ball.height;
+		ball.vy = invert(ball.vy);
+		game.sounds.play("wallbounce");
+	}
+	if (ball.y <= 0) {
+		ball.y = 0;
+		ball.vy = invert(ball.vy);
+		game.sounds.play("wallbounce");
+	}
+	paddleCollision();
 }
 
-function paddleCollision(){
-	if(ball.collides(playerLeft)){
+function paddleCollision() {
+	if (ball.collides(playerLeft)) {
 		ball.x = playerLeft.x + playerLeft.width;
 		ball.vx = invert(ball.vx);
 		sound("paddlebounce");
-	}if(ball.collides(playerRight)){
+	}
+	if (ball.collides(playerRight)) {
 		ball.x = playerRight.x - ball.width;
 		ball.vx = invert(ball.vx);
 		sound("paddlebounce");
 	}
 }
 
-function checkPoints(scene){
+function checkPoints(scene) {
 	var point = false;
-		if(ball.x + ball.width < 0){
-			scoreRight++;
-			point = true;
-		}if(ball.x > canvas.width){
-			scoreLeft++;
-			point = true;
-		}
-		if(point){
-			ball.x = canvas.width / 2 - ball.width / 2;
-			ball.y = canvas.height / 2 - ball.height / 2;
-			ballSpawn(scene);
-			sound("point");
-			point = false;
-		}
+	if (ball.x + ball.width < 0) {
+		scoreRight++;
+		point = true;
+	}
+	if (ball.x > canvas.width) {
+		scoreLeft++;
+		point = true;
+	}
+	if (point) {
+		ball.x = canvas.width / 2 - ball.width / 2;
+		ball.y = canvas.height / 2 - ball.height / 2;
+		ballSpawn(scene);
+		game.sounds.play("point");
+		point = false;
+	}
 }
 
-
-function checkKeys(){
+function checkKeys() {
 	var key = false;
 	if (game.keyboard.isPressed("up") && playerRight.y > 0) {
 		playerRight.vy = -0.7;
@@ -133,15 +148,6 @@ function checkKeys(){
 /*
 	User-created functions end above
 */
-
-//Variables that initialize once when the page is loaded
-var playerLeft;		//Left paddle
-var playerRight;	//Right paddle
-var ball;			//What it says
-var speed;			//Stores speed of ball
-var waitingToStart = true;	//Used for start/title screen
-var scoreLeft = 0;	//Score for left paddle
-var scoreRight = 0;	//Score for right paddle
 
 /*
 	Here's where the magic happens. Each Splat game has at least one "scene".
@@ -173,7 +179,7 @@ var scoreRight = 0;	//Score for right paddle
 		Use this.camera.drawAbsolute(context, function() {}); to draw to a specific coordinate of the CAMERA instead of the CANVAS
 */
 game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
-	waitingToStart = true;	//Start the title screen
+	waitingToStart = true;	// Start the title screen
 
 	var playerLeftImg = game.images.get("playerLeft");
 	playerLeft = new Splat.AnimatedEntity(50, canvas.height / 2  - playerLeftImg.height / 2, playerLeftImg.width, playerLeftImg.height, playerLeftImg, 0, 0);
@@ -181,28 +187,29 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	var playerRightImg = game.images.get("playerRight");
 	playerRight = new Splat.AnimatedEntity(canvas.width - 50 - playerRightImg.width, canvas.height / 2 - playerRightImg.height / 2, playerRightImg.width, playerRightImg.height, playerRightImg, 0, 0);
 
-	var ballImg= game.images.get("ball");
+	var ballImg = game.images.get("ball");
 	ball = new Splat.AnimatedEntity(canvas.width / 2 - ballImg.width / 2, canvas.height / 2 - ballImg.height / 2, ballImg.width,  ballImg.height, ballImg, 0, 0);
 
-	this.timers.ball = new Splat.Timer(undefined, 500, function(){this.reset()});
+	this.timers.ball = new Splat.Timer(undefined, 500, function() {
+		this.reset();
+	});
 
 	ballSpawn(this);
 
 }, function(elapsedMillis) { //***Simulation
-	if(waitingToStart){
-		if(checkKeys()){
+	if (waitingToStart) {
+		if (checkKeys()) {
 			waitingToStart = false;
-
 		}
 	}
-	if(!waitingToStart){
+	if (!waitingToStart) {
 		playerLeft.move(elapsedMillis);
 
 		playerRight.move(elapsedMillis);
 
-		if(!this.timers.ball.running){
+		if (!this.timers.ball.running) {
 			ball.move(elapsedMillis);
-		}		
+		}
 	}
 
 	
@@ -233,40 +240,39 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	var lineY = -25;
 	while(lineY < canvas.height){
 		context.fillStyle="white";
-		context.fillRect(canvas.width / 2 - 5,lineY, 10, 50)
+		context.fillRect(canvas.width / 2 - 5,lineY, 10, 50);
 		lineY += 100;
 	}
 
-	playerLeft.draw(context); 	//draw left paddle
-	playerRight.draw(context);	//draw right paddle
-	ball.draw(context);			//draw ball
+	playerLeft.draw(context); 	// draw left paddle
+	playerRight.draw(context);	// draw right paddle
+	ball.draw(context);			// draw ball
 
-	if(waitingToStart){
+	if (waitingToStart) {
 		this.camera.drawAbsolute(context, function() {
 			context.fillStyle = "#ffffff";
 			context.font = "150px arial";
 			context.fillText("SPLAT", 200, 200);
-			context.fillText("PONG", canvas.width - 700, 200)
+			context.fillText("PONG", canvas.width - 700, 200);
 
 			context.font = "50px arial";
 			context.fillText("w", playerLeft.x, playerLeft.y - 30);
 			context.fillText("s", playerLeft.x, playerLeft.y + playerLeft.height + 50);
 			context.fillText("^", playerRight.x, playerRight.y - 10);
 			context.fillText("v", playerRight.x, playerRight.y + playerRight.height + 50);
-
 		});
 	}
 
-	if(!waitingToStart){
+	if (!waitingToStart) {
 		this.camera.drawAbsolute(context, function() {
-				context.fillStyle = "#ffffff";
-				context.font = "100px arial";
-				context.fillText(scoreLeft, 100, 100);
-				context.fillText(scoreRight, canvas.width - 150, 100)
+			context.fillStyle = "#ffffff";
+			context.font = "100px arial";
+			context.fillText(scoreLeft, 100, 100);
+			context.fillText(scoreRight, canvas.width - 150, 100);
 		});
 	}
-
 }));
+
 /*
 	This "loading" scene is the first thing called (shows loading bar and loads images, sounds, etc from the manifest
 */
