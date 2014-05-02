@@ -22,18 +22,11 @@ var manifest = {
 	],
 	// Animated pictures
 	"animations": {
-	/*TODO:
-		Add sample animations
-	*/
 	}
 };
 
 // Make new "game" variable with "canvas" from line 1
 var game = new Splat.Game(canvas, manifest);
-
-// Variables that initialize once when the page is loaded
-var scoreLeft = 0;	// Score for left paddle
-var scoreRight = 0;	// Score for right paddle
 
 /*
 	The following functions were created by me and are not necessary for a Splat game to run.
@@ -93,11 +86,11 @@ function ballCollision(ball, leftPaddle, rightPaddle) {
 
 function checkPoints(ball, scene) {
 	if (ball.x + ball.width < 0) {
-		scoreRight++;
+		scene.scoreRight++;
 		pointScored(ball, scene);
 	}
 	if (ball.x > canvas.width) {
-		scoreLeft++;
+		scene.scoreLeft++;
 		pointScored(ball, scene);
 	}
 }
@@ -167,6 +160,8 @@ function movePaddle(paddle, upKey, downKey) {
 game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	// Start the title screen
 	this.waitingToStart = true;
+	this.scoreLeft = 0;
+	this.scoreRight = 0;
 
 	var halfCanvasHeight = canvas.height / 2;
 	var leftPaddleImg = game.images.get("leftPaddle");
@@ -230,8 +225,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	} else {
 		context.fillStyle = "#ffffff";
 		context.font = "100px arial";
-		context.fillText(scoreLeft, 100, 100);
-		context.fillText(scoreRight, canvas.width - 150, 100);
+		context.fillText(this.scoreLeft, 100, 100);
+		context.fillText(this.scoreRight, canvas.width - 150, 100);
 	}
 }));
 
