@@ -86,11 +86,11 @@ function ballCollision(ball, leftPaddle, rightPaddle) {
 
 function checkPoints(ball, scene) {
 	if (ball.x + ball.width < 0) {
-		scene.scoreRight++;
+		scene.rightScore++;
 		pointScored(ball, scene);
 	}
 	if (ball.x > canvas.width) {
-		scene.scoreLeft++;
+		scene.leftScore++;
 		pointScored(ball, scene);
 	}
 }
@@ -160,8 +160,8 @@ function movePaddle(paddle, upKey, downKey) {
 game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	// Start the title screen
 	this.waitingToStart = true;
-	this.scoreLeft = 0;
-	this.scoreRight = 0;
+	this.leftScore = 0;
+	this.rightScore = 0;
 
 	var halfCanvasHeight = canvas.height / 2;
 	var leftPaddleImg = game.images.get("leftPaddle");
@@ -225,8 +225,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() { //***Initializer
 	} else {
 		context.fillStyle = "#ffffff";
 		context.font = "100px arial";
-		context.fillText(this.scoreLeft, 100, 100);
-		context.fillText(this.scoreRight, canvas.width - 150, 100);
+		context.fillText(this.leftScore, 100, 100);
+		context.fillText(this.rightScore, canvas.width - 150, 100);
 	}
 }));
 
